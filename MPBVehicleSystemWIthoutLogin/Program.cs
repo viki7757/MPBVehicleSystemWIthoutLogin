@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using MPBVehicleSystemWIthoutLogin.Client.Pages;
 using MPBVehicleSystemWIthoutLogin.Components;
+using MPBVehicleSystemWIthoutLogin.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddDbContext<DataContext>(options => 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
