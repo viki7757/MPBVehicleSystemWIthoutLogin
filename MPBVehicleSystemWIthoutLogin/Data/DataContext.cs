@@ -10,7 +10,9 @@ namespace MPBVehicleSystemWIthoutLogin.Data
             
         }
 
-        public DbSet<EmployeeDetails> EmployeeDetails { get; set; }
-        public DbSet<VehicleDetails> VehicleDetails { get; set; }
+        public DbSet<EmployeeDetail> EmployeeDetails { get; set; }
+        public DbSet<VehicleRegistration> VehicleRegistrations { get; set; }
+        public DbSet<VehicleDepartment> VehicleDepartments { get; set;}
+        public DbSet<VehicleLocation> VehicleLocations { get; set; }
     }
 }

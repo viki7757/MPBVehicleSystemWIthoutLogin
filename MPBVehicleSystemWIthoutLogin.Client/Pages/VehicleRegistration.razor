@@ -4,8 +4,9 @@
 
 <h3>Vehicle Registration</h3>
 
-
-
 @code {
-   
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Http.GetFromJsonAsync<List<string?>>("api/VehicleRegistration/GetDistinctEmployeeDepartments");
+    }   
 }
