@@ -1,0 +1,117 @@
+﻿@page "/vehicleConfiguration"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>VehicleConfiguration</PageTitle>
+
+<h3>VehicleConfiguration</h3>
+
+<MudContainer Class="mt-8" Style="width:1000px" Fixed="true">
+    <MudExpansionPanels>
+        <MudExpansionPanel>
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Icon="@Icons.Material.Outlined.LocationOn" Color="Color.Warning" class="mr-3"></MudIcon>
+                    <MudText>Locations</MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <EditForm Model="@location" OnValidSubmit="addLocation">
+                    <DataAnnotationsValidator/>
+                    <MudGrid Class="mt-2">
+                        <MudItem>
+                            <MudTextField @bind-Value="location.Name" Label="Enter vehicle location name" For="@(() => location.Name)" Style="width:600px" Margin="Margin.None"></MudTextField>
+                        </MudItem>
+                        <MudItem Class="mt-3">
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Size="Size.Small" Style="text-transform:none" Color="Color.Info" 
+                                EndIcon="@Icons.Material.Outlined.Add" IconSize="Size.Small">Add</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                    <MudGrid Class="mt-5 ml-8 mb-2">
+                        <MudSimpleTable Dense Hover Elevation="0">
+                            <tbody>
+                                @foreach(var items in vehicleLocations)
+                                {
+                                    <tr>
+                                        <td>@items.Name</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudGrid>
+                </EditForm>
+            </ChildContent>
+        </MudExpansionPanel>
+        <MudExpansionPanel>
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Icon="@Icons.Material.Outlined.Warehouse" Color="Color.Warning" class="mr-3"></MudIcon>
+                    <MudText>Departments</MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <EditForm Model="department" OnValidSubmit="addDepartment">
+                    <DataAnnotationsValidator />
+                    <MudGrid Class="mt-2">
+                        <MudItem>
+                            <MudTextField @bind-Value="department.Name" Label="Enter vehicle department name" For="@(() => department.Name)" Style="width:600px" Margin="Margin.None"></MudTextField>
+                        </MudItem>
+                        <MudItem Class="mt-3">
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Size="Size.Small" Style="text-transform:none" Color="Color.Info" 
+                                       EndIcon="@Icons.Material.Outlined.Add" IconSize="Size.Small">Add</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                    <MudGrid Class="mt-5 ml-8 mb-2">
+                        <MudSimpleTable Dense Hover Elevation="0">
+                             <tbody>
+                                 @foreach (var items in vehicleDepartments)
+                                {
+                                    <tr>
+                                        <td>@items.Name</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudGrid>
+                </EditForm>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</MudContainer>
+
+@code {
+    VehicleLocation location = new();
+    VehicleDepartment department = new();
+    List<VehicleLocation> vehicleLocations = new();
+    List<VehicleDepartment> vehicleDepartments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await getLocations();
+        await getDepartments();
+    }
+
+    public async Task getLocations()
+    {
+
+    }
+
+    public async Task getDepartments()
+    {
+
+    }
+
+    public async Task addLocation(EditContext context)
+    {
+        Console.WriteLine("added location");
+        location = new();
+        StateHasChanged();
+    }
+
+    public async Task addDepartment(EditContext context)
+    {
+        Console.WriteLine("added department");
+        department = new();
+        StateHasChanged();
+    }
+}
