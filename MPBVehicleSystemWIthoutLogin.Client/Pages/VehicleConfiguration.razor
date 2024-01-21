@@ -1,5 +1,6 @@
 ﻿@page "/vehicleConfiguration"
 @inject HttpClient Http
+@* @inject ISnackbar snackBar *@
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 <PageTitle>VehicleConfiguration</PageTitle>
@@ -17,24 +18,41 @@
             </TitleContent>
             <ChildContent>
                 <EditForm Model="@location" OnValidSubmit="addLocation">
-                    <DataAnnotationsValidator/>
+                    <DataAnnotationsValidator />
                     <MudGrid Class="mt-2">
                         <MudItem>
                             <MudTextField @bind-Value="location.Name" Label="Enter vehicle location name" For="@(() => location.Name)" Style="width:600px" Margin="Margin.None"></MudTextField>
                         </MudItem>
                         <MudItem Class="mt-3">
-                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Size="Size.Small" Style="text-transform:none" Color="Color.Info" 
-                                EndIcon="@Icons.Material.Outlined.Add" IconSize="Size.Small">Add</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="isLocDisable" Variant="Variant.Filled" Size="Size.Small" Style="text-transform:none" Color="Color.Info"
+                                       EndIcon="@Icons.Material.Outlined.Add" IconSize="Size.Small">Add</MudButton>
                         </MudItem>
                     </MudGrid>
                     <MudGrid Class="mt-5 ml-8 mb-2">
                         <MudSimpleTable Dense Hover Elevation="0">
-                            <tbody>
-                                @foreach(var items in vehicleLocations)
+                             <tbody>
+                                 @if (vehicleLocations != null)
                                 {
-                                    <tr>
-                                        <td>@items.Name</td>
-                                    </tr>
+                                    foreach (var items in vehicleLocations)
+                                    {
+                                        <tr>
+                                           @*  <td width="100px">
+                                                @if (items.IsActive == true)
+                                                {
+                                                    <MudTooltip Text="Active" Placement="Placement.Right">
+                                                        <MudIconButton OnClick="@((e) => isActiveLocation(items.Id))" Icon="@Icons.Material.Outlined.Sync" Size="Size.Small" Color="Color.Info"></MudIconButton>
+                                                    </MudTooltip>
+                                                }
+                                                else
+                                                {
+                                                    <MudTooltip Text="Inactive" Placement="Placement.Right">
+                                                        <MudIconButton OnClick="@((e) => isActiveLocation(items.Id))" Icon="@Icons.Material.Outlined.SyncDisabled" Size="Size.Small" Color="Color.Error"></MudIconButton>
+                                                    </MudTooltip>
+                                                }
+                                            </td> *@
+                                            <td style="@(items.IsActive == false ? $"color:{Colors.Grey.Lighten1};" : $"")">@items.Name</td>
+                                        </tr>
+                                    }
                                 }
                             </tbody>
                         </MudSimpleTable>
@@ -57,19 +75,36 @@
                             <MudTextField @bind-Value="department.Name" Label="Enter vehicle department name" For="@(() => department.Name)" Style="width:600px" Margin="Margin.None"></MudTextField>
                         </MudItem>
                         <MudItem Class="mt-3">
-                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Size="Size.Small" Style="text-transform:none" Color="Color.Info" 
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="isDepDisable" Variant="Variant.Filled" Size="Size.Small" Style="text-transform:none" Color="Color.Info"
                                        EndIcon="@Icons.Material.Outlined.Add" IconSize="Size.Small">Add</MudButton>
                         </MudItem>
                     </MudGrid>
                     <MudGrid Class="mt-5 ml-8 mb-2">
                         <MudSimpleTable Dense Hover Elevation="0">
                              <tbody>
-                                 @foreach (var items in vehicleDepartments)
+                                @if(vehicleDepartments != null)
                                 {
-                                    <tr>
-                                        <td>@items.Name</td>
-                                    </tr>
-                                }
+                                    foreach (var items in vehicleDepartments)
+                                    {
+                                        <tr>
+                                           @*  <td width="100px">
+                                                @if (items.IsActive == true)
+                                                {
+                                                    <MudTooltip Text="Active" Placement="Placement.Right">
+                                                        <MudIconButton OnClick="@((e) => isActiveDepartment(items.Id))" Icon="@Icons.Material.Outlined.Sync" Size="Size.Small" Color="Color.Info"></MudIconButton>
+                                                    </MudTooltip>
+                                                }
+                                                else
+                                                {
+                                                    <MudTooltip Text="Inactive" Placement="Placement.Right">
+                                                        <MudIconButton OnClick="@((e) => isActiveDepartment(items.Id))" Icon="@Icons.Material.Outlined.SyncDisabled" Size="Size.Small" Color="Color.Error"></MudIconButton>
+                                                    </MudTooltip>
+                                                }
+                                            </td> *@
+                                            <td style="@(items.IsActive == false ? $"color:{Colors.Grey.Lighten1};" : $"")">@items.Name</td>
+                                        </tr>
+                                    }
+                                }                                
                             </tbody>
                         </MudSimpleTable>
                     </MudGrid>
@@ -80,10 +115,12 @@
 </MudContainer>
 
 @code {
+    bool isDepDisable;
+    bool isLocDisable;
     VehicleLocation location = new();
     VehicleDepartment department = new();
-    List<VehicleLocation> vehicleLocations = new();
-    List<VehicleDepartment> vehicleDepartments = new();
+    List<VehicleLocation>? vehicleLocations = new();
+    List<VehicleDepartment>? vehicleDepartments = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,25 +130,53 @@
 
     public async Task getLocations()
     {
-
+        vehicleLocations = await Http.GetFromJsonAsync<List<VehicleLocation>>("api/VehicleConfigurationFeature/GetAllVehicleLocations");
     }
 
     public async Task getDepartments()
     {
-
+        vehicleDepartments = await Http.GetFromJsonAsync<List<VehicleDepartment>>("api/VehicleConfigurationFeature/GetAllVehicleDepartments");
     }
 
     public async Task addLocation(EditContext context)
     {
-        Console.WriteLine("added location");
-        location = new();
+        isLocDisable = true;
+        var request = await Http.PostAsJsonAsync("api/VehicleConfigurationFeature/AddVehicleLocation", location);
+        if (request.IsSuccessStatusCode)
+        {
+            //showSnackBar("Successfully added vehicle location");
+            location = new();
+            await getLocations();
+        }
+        isLocDisable = false;
         StateHasChanged();
     }
 
     public async Task addDepartment(EditContext context)
     {
-        Console.WriteLine("added department");
-        department = new();
+        isDepDisable = true;
+        var request = await Http.PostAsJsonAsync("api/VehicleConfigurationFeature/AddVehicleDepartment", department);
+        if (request.IsSuccessStatusCode)
+        {
+            department = new();
+            await getDepartments();
+        }
+        isDepDisable = false;
         StateHasChanged();
     }
+
+    private async Task isActiveDepartment(int id)
+    {
+        
+    }
+
+    private async Task isActiveLocation(int id)
+    {
+
+    }
+
+    // void showSnackBar(string getstringvalue)
+    // {
+    //     snackBar.Add($"{getstringvalue}", Severity.Success, config => { config.ShowCloseIcon = false; });
+    // }
 }
