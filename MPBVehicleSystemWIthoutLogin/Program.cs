@@ -1,12 +1,22 @@
+using Microsoft.EntityFrameworkCore;
 using MPBVehicleSystemWIthoutLogin.Client.Pages;
 using MPBVehicleSystemWIthoutLogin.Components;
+using MPBVehicleSystemWIthoutLogin.Data;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMudServices();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddControllers();
+
+builder.Services.AddDbContext<DataContext>(options => 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
@@ -23,6 +33,8 @@ else
 }
 
 app.UseHttpsRedirection();
+
+app.MapControllers();   
 
 app.UseStaticFiles();
 app.UseAntiforgery();
